@@ -1,3 +1,4 @@
+# Author: Robert Literman (https://github.com/BobLiterman)
 library(biomaRt)
 library(bedr)
 library(parallel)
