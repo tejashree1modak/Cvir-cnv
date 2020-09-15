@@ -1,10 +1,8 @@
-Oyster Genome Project
-================
+Oyster Genome Bioinformatics
+============================
 Jon Puritz
 12/7/2019
 
-Oyster Genome Bioinformatics
-============================
 
 This will walk through all code and outputs for generating BAM files for the Eastern Oyster Genome Project.
 
