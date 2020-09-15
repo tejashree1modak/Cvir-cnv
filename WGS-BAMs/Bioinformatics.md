@@ -15,7 +15,7 @@ setwd("~/Oyster_Genome_Project")
 Initial read trimming and mapping
 ---------------------------------
 
-For this, I will be using a modified version of dDocent [LINK](./Scripts/dDocent_ngs)
+For this, I will be using a modified version of dDocent [LINK](./Scripts/dDocent_ngs.sh)
 
 Here are the first parameters used:
 
