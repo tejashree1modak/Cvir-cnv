@@ -3,7 +3,7 @@
 
 #### Reference genome and resequencing data:
 - [Reference genome](https://www.ncbi.nlm.nih.gov/genome/398)
-- Resequence data: 60 individuals of *C.virginica* across 9 locations along the eastern coast of the United States were sampled (details in the upcoming Genome paper in Puritz et al., in prep).
+- Resequence data: 60 individuals of *C.virginica* across 9 locations along the eastern coast of the United States were sampled. Details about processing Illumina reads from Whole Genome Sequencing of these samples to generate BAM files used in CNV discovery are available in dir [WGS-BAMs](https://github.com/tejashree1modak/Cvir-cnv/tree/master/WGS-BAMs).
 #### CNV discovery
 - **Software:** CNVs were called using 'germline SV calling' with default parameters in [DELLY2](https://github.com/dellytools/delly) (v0.7.8).
 - **Requirements:** BAM files per sample and reference genome fasta. 
