@@ -13,7 +13,7 @@ setwd("~/Oyster_Genome_Project")
 Initial read trimming and mapping
 ---------------------------------
 
-For this, I will be using a modified version of dDocent [LINK](./Scripts/dDocent_ngs.sh)
+For this, I will be using a modified version of `dDocent` [LINK](./Scripts/dDocent_ngs.sh).  This version of `dDocent`utilized [Trimmomatic](https://github.com/timflutre/trimmomatic) for read trimming, [BWA](https://github.com/lh3/bwa) for read mapping, [PICARD](https://broadinstitute.github.io/picard/) for duplicate dmarking, and [SAMTOOLS](https://github.com/samtools/samtools) for BAM file manipulation.  
 
 Here are the first parameters used:
 
