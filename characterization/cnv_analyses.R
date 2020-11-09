@@ -25,8 +25,8 @@ cn_only$CHROM <- oysterdup_fil$CHROM
 getg <- function(bedout_col){
   str_split( bedout_col, ':') %>% map_chr(1)
 }
-gtypes_only <- map_dfr(select(oysterdup,CL_1:SM_9),getg)
-gtypes_only$ID <- oysterdup$ID
+gtypes_only <- map_dfr(select(oysterdup_fil,CL_1:SM_9),getg)
+gtypes_only$ID <- oysterdup_fil$ID
 #pulling out gtype and cn for each pop side by side to visually compare
 gtypes_cn <- left_join(cn_only, gtypes_only, by = 'ID') 
 gtypes_cn <- gtypes_cn[,order(colnames(gtypes_cn))]
