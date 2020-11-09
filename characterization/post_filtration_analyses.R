@@ -130,6 +130,134 @@ ggplot(pop_sum_fil, aes(x=pop,y=prop, color=pop)) + geom_bar(stat = "identity", 
   labs(x="Populations", y="Proportion of total duplications per location") 
 
 
+## Upset plot of duplications to compare hightemp and lowtemp among themselves POST FILTERATION ##
+# For h_temp samples
+h_temp <- c("CL", "LM", "SL")
+pop_num_alts_present_fil_h_temp <- pop_num_alts_present_fil %>% 
+  filter(pop %in% h_temp)
+ids_h_temp <- unique(pop_num_alts_present_fil_h_temp$ID)
+#Count number of duplications present in h_temp samples
+length(ids_h_temp)#7731
+binaries_h_temp <- h_temp %>% 
+  map_dfc(~ ifelse(ids_h_temp %in% filter(pop_num_alts_present_fil_h_temp, pop == .x)$ID, 1, 0) %>% 
+            as.data.frame) # UpSetR doesn't like tibbles
+# set column names
+names(binaries_h_temp) <- h_temp
+# have a look at the data
+head(binaries_h_temp)  
+# UpSet plot of the intersected duplications across locations
+upset(binaries_h_temp, nsets = length(h_temp), main.bar.color = "SteelBlue", sets.bar.color = "DarkCyan", 
+      sets.x.label = "Number duplicate loci", text.scale = c(rep(1.4, 5), 1.4), order.by = "freq")
+
+l_temp <- c("CLP","CS","HC","HCVA")
+pop_num_alts_present_fil_l_temp <- pop_num_alts_present_fil %>% 
+  filter(pop %in% l_temp)
+ids_l_temp <- unique(pop_num_alts_present_fil_l_temp$ID)
+#Count number of duplications present in l_temp samples
+length(ids_l_temp)#7684 #8243 with CS
+binaries_l_temp <- l_temp %>% 
+  map_dfc(~ ifelse(ids_l_temp %in% filter(pop_num_alts_present_fil_l_temp, pop == .x)$ID, 1, 0) %>% 
+            as.data.frame) # UpSetR doesn't like tibbles
+# set column names
+names(binaries_l_temp) <- l_temp
+# have a look at the data
+head(binaries_l_temp)  
+# UpSet plot of the intersected duplications across locations
+upset(binaries_l_temp, nsets = length(l_temp), main.bar.color = "SteelBlue", sets.bar.color = "DarkCyan", 
+      sets.x.label = "Number duplicate loci", text.scale = c(rep(1.4, 5), 1.4), order.by = "freq")
+
+## How mnay dups are present in both low and high temp samples? 
+length(Reduce(intersect,list(ids_h_temp,ids_l_temp))) #5778 #5986 with CS
+common_hl_temp <- Reduce(intersect,list(ids_h_temp,ids_l_temp))
+grid.newpage()
+draw.pairwise.venn(7731, 8243, 5986, category = c("High temp samples", "Low temp samples"), 
+                   lty = rep("blank", 2), fill = c("sky blue", "orange"), 
+                   alpha = rep(0.5, 2), cat.pos = c(340, 45), cat.dist = rep(0.025, 2), scaled = TRUE)
+#ids in SL,SM (wild) and HG,NG (inbred)
+rest_temp <- c("HG","NG","HI","SM")
+pop_num_alts_present_fil_rest_temp <- pop_num_alts_present_fil %>% 
+  filter(pop %in% rest_temp)
+ids_rest_temp <- unique(pop_num_alts_present_fil_rest_temp$ID) 
+length(ids_rest_temp) 
+#rest and h_temp
+length(Reduce(intersect,list(ids_rest_temp,ids_h_temp)))
+#rest and l_temp
+length(Reduce(intersect,list(ids_rest_temp,ids_l_temp)))
+# rest_h_l_temp
+length(Reduce(intersect,list(ids_rest_temp,ids_h_temp,ids_l_temp)))
+#Triple Venn between high temp, low temp and the rest of the locations
+grid.newpage()
+venn.plot <- draw.triple.venn(
+  #area1 = 7731,
+  area1 = length(ids_h_temp),
+  # area2 = 8243,
+  area2 = length(ids_l_temp),
+  # area3 = 7576,
+  area3 = length(ids_rest_temp),
+  # n12 = 5986,
+  n12 = length(Reduce(intersect,list(ids_h_temp,ids_l_temp))),
+  # n23 = 6274,
+  n23 = length(Reduce(intersect,list(ids_rest_temp,ids_l_temp))),
+  # n13 = 6501,
+  n13 = length(Reduce(intersect,list(ids_rest_temp,ids_h_temp))),
+  # n123 = 5575,
+  n123 = length(Reduce(intersect,list(ids_rest_temp,ids_h_temp,ids_l_temp))),
+  category = c("High", "Low", "Rest"),
+  fill = c("dodgerblue", "goldenrod1", "seagreen3"),
+  lty = "blank",
+  cex = 2,
+  cat.cex = 2,
+  cat.col = c("dodgerblue", "goldenrod1", "seagreen3"))
+#Get IDs that are unique to high and low temp
+high_df <- as.data.frame(ids_h_temp)
+colnames(high_df) <- c("ID")
+low_df <- as.data.frame(ids_l_temp)
+colnames(low_df) <- c("ID")
+rest_df <- as.data.frame(ids_rest_temp)
+colnames(rest_df) <- c("ID")
+#get IDs unique to high temp
+high_uniq1 <- anti_join(high_df,low_df)
+high_uniq2 <- anti_join(high_uniq1,rest_df)
+nrow(high_uniq2)  #1459
+#get IDs unique to low temp
+low_uniq1 <- anti_join(low_df,high_df)
+low_uniq2 <- anti_join(low_uniq1,rest_df)
+nrow(low_uniq2) #1322
+
+## Comparison of FREQUENCY of dups between high and low temp
+# High temp dups present in all high temp loc AND > 90% individuals
+common_dups_htemp <- pop_num_alts_present_fil_h_temp %>% group_by(ID) %>% 
+                          tally(sort = TRUE) %>% filter(n == 3) %>% select(ID) 
+#Get dups common to all populations but present in all samples of each population
+gtypes_long_htemp <- gtypes_long_fil %>% filter(!is.na(num_alts)) %>% filter(num_alts > 0) %>% 
+                          filter(pop %in% h_temp)
+#Out of the 3730 dups that are present in all high temp locations  how many are present in 
+# Most frequent: >90% samples (i.e. in 15 samples) #325dups
+most_freq_htemp <- semi_join(gtypes_long_htemp,common_dups_htemp, by="ID") %>% group_by(ID) %>% 
+                      summarize(count=n()) %>% filter(count > 15) %>% select("ID")
+# Least frequent: <10% samples (ie 1.7=2 individuals)
+# no dups present in <10%, the least number of individuals is 4 hence using <5 as criteria, ie <30% #4dups
+least_freq_htemp <- gtypes_long_fil %>% filter(!is.na(num_alts)) %>% filter(pop %in% h_temp) %>% group_by(ID) %>% 
+                        summarize(count=n()) %>% filter(count < 5) %>% select("ID")
+# Low temp 
+common_dups_ltemp <- pop_num_alts_present_fil_l_temp %>% group_by(ID) %>% 
+      tally(sort = TRUE) %>% filter(n == 4) %>% select(ID) 
+#Get dups common to all populations but present in all samples of each population
+gtypes_long_ltemp <- gtypes_long_fil %>% filter(!is.na(num_alts)) %>% filter(num_alts > 0) %>% 
+      filter(pop %in% l_temp)
+#Out of the 3806 dups that are present in all populations how many are present in 
+# Most frequent: >90% samples (i.e. in 22 samples) #513dups
+most_freq_ltemp <- semi_join(gtypes_long_ltemp,common_dups_ltemp, by="ID") %>% group_by(ID) %>% 
+      summarize(count=n()) %>% filter(count > 22) %>% select("ID")
+# Least frequent: <10% samples (ie 3 individuals)
+# no dups present in <10%, the least number of individuals is 12 with 1 dup and 13 with 3 dups hence using <14 as criteria, ie <54% #4dups
+least_freq_ltemp <- gtypes_long_fil %>% filter(!is.na(num_alts)) %>% filter(pop %in% l_temp) %>% group_by(ID) %>% 
+      summarize(count=n()) %>% filter(count < 14) %>% select("ID")
+# Most freq dups in high temp that are least freq in low temp
+semi_join(most_freq_htemp,least_freq_ltemp) #1dup (not annotated)
+# Most freq dups in low temp that are least freq in high temp
+semi_join(most_freq_ltemp,least_freq_htemp) #1dup (not annotated)
+
 #### Frequency of Duplications per chromosome comparison across locations ####
 # get chromosome locations
 chrom_pos <- oysterdup_fil %>% select(CHROM, POS)
