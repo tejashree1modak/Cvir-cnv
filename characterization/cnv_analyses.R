@@ -21,12 +21,15 @@ cn_only <- map_dfr(select(oysterdup_fil,CL_1:SM_9),getcn)
 cn_only$ID <- oysterdup_fil$ID
 cn_only$POS <- oysterdup_fil$POS
 cn_only$CHROM <- oysterdup_fil$CHROM
+
 #Function to pull out genotype from a col in the vcf for a sample
 getg <- function(bedout_col){
   str_split( bedout_col, ':') %>% map_chr(1)
 }
-gtypes_only <- map_dfr(select(oysterdup,CL_1:SM_9),getg)
-gtypes_only$ID <- oysterdup$ID
+
+gtypes_only <- map_dfr(select(oysterdup_fil,CL_1:SM_9),getg)
+gtypes_only$ID <- oysterdup_fil$ID
+
 #pulling out gtype and cn for each pop side by side to visually compare
 gtypes_cn <- left_join(cn_only, gtypes_only, by = 'ID') 
 gtypes_cn <- gtypes_cn[,order(colnames(gtypes_cn))]
@@ -41,6 +44,24 @@ cn_gtypes_long <- left_join(cn_long, gtypes_long)
 cn_gtypes_long <- within(cn_gtypes_long, cn[gtype == '0/0'] <- 0)
 cn_gtypes_long <- within(cn_gtypes_long, cn[gtype == './.'] <- 0)
 cn_gtypes_long$cn <- as.numeric(as.character(cn_gtypes_long$cn))
+
+############## Warm/cold 
+samples <- unique(cn_gtypes_long$sample) #list of samples 
+d <- c()
+for (i in 1:100){
+  random_samples <- sample(samples, 17)  #17 random samples
+  cn_gtypes_long_random <- filter(cn_gtypes_long, cn > 0) %>%
+    filter(sample %in% random_samples)
+  cn_gtypes_long_random_not <- filter(cn_gtypes_long, cn > 0) %>%
+    filter(!(sample %in% random_samples))
+  sample_cnvs <- unique(cn_gtypes_long_random$ID)
+  non_sample_cnvs <- unique(cn_gtypes_long_random_not$ID)
+  d <- c(d,length(setdiff(sample_cnvs,non_sample_cnvs)))
+}
+hist(d)
+sort(d) %>% tail(5)
+
+##############PLOTS
 
 # Plot cnv per location per individual per chromosome in one plot
 #Chromosome 1
