@@ -2,7 +2,9 @@
 ### Modak et al., 2020
 
 #### Duplication filtration:
-#### Filter 1: Duplications overlapping with repeat regions identified in the reference genome
+#### Filter 1: Duplications that pass the quality filter as applied in DELLY are kept.
+#### Filter 2: Duplications that are present in >90% of samples hence likely fixed in the population are filtered out.
+#### Filter 3: Duplications overlapping with repeat regions identified in the reference genome
 ##### Duplications that overlap >10% with a repeat region were filtered from the analyses
 - [Repeats identified in C.virginica genome](ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/002/022/765/GCA_002022765.4_C_virginica-3.0)
 Repeats file from NCBI was preprocessed to make a bedfile of repeats as follows:
@@ -44,4 +46,8 @@ bedtools intersect -a oysterduplicate_sort.bed -b Cvir_repeats_merged.bed -wo > 
 ```
 
 This file was used to filter duplications that overlap >10% with a repeat region.
-Use filter_repeats.R for this step. 
+Use filter_repeats.R for this step.
+This script produces the following files of filtered duplications that are used in ALL further analysis
+- **FILE 1: BEDFILE of filtered duplications**
+- **FILE 2: VCF of filtered duplications**
+- **FILE 3: population counts of filtered duplications**

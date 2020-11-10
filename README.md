@@ -23,9 +23,11 @@ This step filters duplications identified by delly using the following criteria:
 
 Script: filter_dups.R
 
+We identified 19,315 duplications in total. Filters 1, 2 and 3 identified 6815, 288 and 1641 duplications to be removed respectively. Thus, we removed 8,716 unique duplications resulting in 10,599 duplications that were then analyzed for all downstream analysis as shown in the next sections.
+
 #### 2. Characterization
 
-This step is used to characterize filtered duplications 
+This step is used to characterize duplications remaining after filtration per step 1 above. 
 
 1. across locations
 2. across genome
@@ -36,7 +38,7 @@ Script 2: cnv_analyses.R
 
 #### 3. Annotation
 
-This step annotates duplications using the reference genome annotation.
+This step annotates filtered duplications using the reference genome annotation.
 
 1. GO and KEGG annotation
 2. Mapping duplications to different features in the genome

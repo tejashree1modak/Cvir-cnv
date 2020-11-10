@@ -78,6 +78,17 @@ kegg_vector2 <-  kegg_vector2[order(kegg_vector2$`Number of genes mapped`, decre
 write.table(kegg_vector_sorted, here("annotation/dup_kegg_freq"), append = FALSE, sep = ",", quote = FALSE,
             row.names = F, col.names = TRUE)
 
+## Temperature specific duplications
+# Dups unique to high temp
+high_kegg <- left_join(high_uniq2,dup_kegg)
+#how many out of 1459 high temp dups are in kegg annotation
+high_kegg %>% filter(!is.na(Enzyme_name)) %>% filter(Enzyme_name != "") %>% nrow() #174 (174/1459)*100=11.9%
+high_kegg_vector <- as.data.frame(table(unlist(strsplit(as.character(high_kegg$Enzyme_name), ";"))))
+# Dups unique to low temp
+low_kegg <- left_join(low_uniq2,dup_kegg)
+#how many out of 1322 low temp dups are in kegg annotation
+low_kegg %>% filter(!is.na(Enzyme_name)) %>% filter(Enzyme_name != "") %>% nrow() #141 (141/1322)*100=10.6%
+low_kegg_vector <- as.data.frame(table(unlist(strsplit(as.character(low_kegg$Enzyme_name), ";"))))
 
 #### GO annotation for duplications ####
 #Extract DUP_IDs, GO_IDs
@@ -95,6 +106,18 @@ go_vector_sorted <-  go_vector[order(go_vector$Freq, decreasing=TRUE),]
 #write.table(go_vector_sorted, (here("characterization/go_vector_sorted.txt"), append = FALSE, sep = " ",quote = FALSE,
 #            row.names = F, col.names = TRUE)
 
+## Temperature specific duplications
+# Dups unique to high temp
+high_go <- left_join(high_uniq2,dup_go)
+#how many out of 1459 high temp dups are in go annotation
+high_go %>% filter(!is.na(GO_ID)) %>% filter(GO_ID != "") %>% nrow() #915 (915/1459)*100=62.71% annotated to GO
+high_go_vector <- as.data.frame(table(unlist(strsplit(as.character(high_go$GO_ID), ";"))))
+# Dups unique to low temp
+low_go <- left_join(low_uniq2,dup_go)
+#how many out of 1322 low temp dups are in go annotation
+low_go %>% filter(!is.na(GO_ID)) %>% filter(GO_ID != "") %>% nrow() #735 (735/1322)*100=55.59% annotaed to GO
+low_go_vector <- as.data.frame(table(unlist(strsplit(as.character(low_go$GO_ID), ";"))))
+
 # Gene Ontology enrichment analysis for all duplications was done using topGO in topGO.R script
 #write files for topGO: 
 #interestinggenes.txt
@@ -107,3 +130,18 @@ ref_annot_go_kegg %>% select(Sequence_name,GO_ID) %>%
   write.table(here("annotation/annotations.txt"), append = FALSE, sep = "\t",quote = F,row.names = F, col.names = F)
 #Use sed 's/;/,/g' annotations.txt > annotations_topgo.txt to convert it to format required by topGO
 # USe topgo_pipe.R to get enrichment results
+
+## GO enrichment for Temperature specific groups
+#High temp
+high_dup_loc_xp <- left_join(high_uniq2,dup_loc_xp) 
+left_join(high_dup_loc_xp, ref_annot_go_kegg, by="Sequence_name") %>% 
+      select(Sequence_name) %>% unique() %>% filter(!is.na(Sequence_name)) %>% 
+            write.table(here("annotation/high_interestinggenes.txt"), append = FALSE, 
+                                      sep = "\t",quote = F,row.names = F, col.names = F)
+# Low temp
+low_dup_loc_xp <- left_join(low_uniq2,dup_loc_xp) 
+left_join(low_dup_loc_xp, ref_annot_go_kegg, by="Sequence_name") %>% 
+      select(Sequence_name) %>% unique() %>% filter(!is.na(Sequence_name)) %>% 
+            write.table(here("annotation/low_interestinggenes.txt"), append = FALSE, 
+                                      sep = "\t",quote = F,row.names = F, col.names = F)
+
